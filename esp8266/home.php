@@ -13,7 +13,7 @@
 <body>
   <div class="container vh-80 d-flex justify-content-center align-items-center">
     <div class="text-center">
-      <h1 class="mb-4">Welcome to the Homepage</h1>
+      <h1 class="mb-4">Welcome to the Homepage Khadeem</h1>
       <div class="d-flex justify-content-center gap-3">
       <a href="patient_form.php" class="btn btn-primary btn-lg px-5 py-3 fs-3">Add Patients</a>
       <a href="view.php" class="btn btn-success btn-lg px-5 py-3 fs-3">View Patients</a>
