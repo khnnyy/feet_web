@@ -1,11 +1,11 @@
 <?php
 include "db_conn.php";
-$foot_id = $_GET["foot_id"];
-$sql = "DELETE FROM `foot_data` WHERE foot_id = $foot_id";
+$patient_id = $_GET["patient_id"];
+$sql = "DELETE FROM `patients` WHERE patient_id = $patient_id";
 $result = mysqli_query($conn, $sql);
 
 if ($result) {
-  header("Location: index.php?msg=Data deleted successfully");
+  header("Location: view.php?msg=Data deleted successfully");
 } else {
   echo "Failed: " . mysqli_error($conn);
 }

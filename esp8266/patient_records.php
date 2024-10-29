@@ -113,7 +113,6 @@ $total_pages = ceil($total_records / $records_per_page);
                         <td><?php echo $row["patient_id"] ?></td>
                         <td><?php echo $row["date"] ?></td>
                         <td>
-                            <a href="diagnose.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="Diagnose"><i class="bi bi-lungs-fill fs-5 me-3"></i></a>
                             <a href="view_records.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="View Records"><i class="bi bi-file-medical-fill fs-5 me-3"></i></a>
                             <a href="edit.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="Edit"><i class="fa-solid fa-pen-to-square fs-5 me-3"></i></a>
                             <a href="delete.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="Delete"><i class="fa-solid fa-trash fs-5 me-3"></i></a>

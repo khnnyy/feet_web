@@ -1,89 +1,122 @@
-<?php
-include "db_conn.php";
-$patient_id = $_GET["patient_id"];
-
-if (isset($_POST["submit"])) {
-  $patient_id = $_POST['patient_id'];
-  $temp = $_POST['temp'];
-  $hrate = $_POST['hrate'];
-  $bsat = $_POST['bsat'];
-  $bweight = $_POST['bweight'];
-  $gsr = $_POST['gsr'];
-  $foot = $_POST['foot'];
-
-  $sql = "INSERT INTO `feet_diagnostics` (`patient_id`, `temp`, `heartrate`, `bloodsat`, `bodyweight`, `gsr`, `foot`) VALUES ('$patient_id','$temp','$hrate', '$bsat', '$bweight', '$gsr', '$foot')";
-
-  $result = mysqli_query($conn, $sql);
-
-  if ($result) {
-    header("Location: index.php?msg=Data updated successfully");
-  } else {
-    echo "Failed: " . mysqli_error($conn);
-  }
-}
-
-?>
-
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-  <title>PHP CRUD Application</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foot Analysis Display</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .img-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            overflow: hidden;
+        }
+        .summary-container {
+            padding: 20px;
+        }
+        .data-label {
+            font-weight: bold;
+        }
+        .data-value {
+            background-color: #f8f9fa;
+        }
+        .loading-spinner {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
 </head>
-
 <body>
-  <nav class="navbar navbar-light justify-content-center fs-3 mb-5" style="background-color: #00ff5573;">
-    PHP Complete CRUD Application
-  </nav>
+    <?php include_once "includes/header.php" ?>
 
-  <div class="container">
-    <div class="text-center mb-4">
-      <h3>Edit User Information</h3>
-      <p class="text-muted">Click update after changing any information</p>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Image Section -->
+            <div class="col-md-7 img-container">
+                <img src="assests/feet.jpg" class="img-fluid" alt="Foot Image" style="max-height: 80vh;">
+            </div>
+
+            <!-- Summary Section -->
+            <div class="col-md-5 summary-container">
+                <h2>Foot Analysis Summary</h2>
+                <button id="fetchDataBtn" class="btn btn-primary mb-3">Fetch Data</button>
+                <div class="loading-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <div id="dataDisplay" style="display: none;">
+                    <div class="form-group">
+                        <label class="data-label" for="temp">Temperature</label>
+                        <input type="text" class="form-control data-value" id="temp" placeholder="Value" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="data-label" for="heartrate">Heart Rate</label>
+                        <input type="text" class="form-control data-value" id="heartrate" placeholder="Value" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="data-label" for="bloodsat">Blood Saturation</label>
+                        <input type="text" class="form-control data-value" id="bloodsat" placeholder="Value" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="data-label" for="bodyweight">Body Weight</label>
+                        <input type="text" class="form-control data-value" id="bodyweight" placeholder="Value" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="data-label" for="gsr">GSR</label>
+                        <input type="text" class="form-control data-value" id="gsr" placeholder="Value" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="data-label" for="foot">Foot</label>
+                        <input type="text" class="form-control data-value" id="foot" placeholder="Value" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <?php
-    $sql = "SELECT * FROM `foot_data` WHERE foot_id = $foot_id LIMIT 1";
-    $result = mysqli_query($conn, $sql);
-    $row = mysqli_fetch_assoc($result);
-    ?>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('fetchDataBtn').addEventListener('click', function () {
+            // Show loading spinner
+            document.querySelector('.loading-spinner').style.display = 'block';
 
-    <div class="container d-flex justify-content-center">
-      <form action="" method="post" style="width:50vw; min-width:300px;">
-        <div class="row mb-3">
-          <div class="col">
-            <label class="form-label">Patient Name:</label>
-            <input type="text" class="form-control" name="patient_name" value="<?php echo $row['patient_name'] ?>">
-          </div>
+            // Fetch data via POST request
+            fetch('post_data.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    api_key: 'tPmAT5Ab3j7F9'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading spinner and display data
+                document.querySelector('.loading-spinner').style.display = 'none';
+                document.getElementById('dataDisplay').style.display = 'block';
 
-          <div class="col">
-            <label class="form-label">Sensor Value:</label>
-            <input type="text" class="form-control" name="sensor_value" value="<?php echo $row['sensor_value'] ?>">
-          </div>
-        </div>
-
-        <div>
-          <button type="submit" class="btn btn-success" name="submit">Update</button>
-          <a href="index.php" class="btn btn-danger">Cancel</a>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Bootstrap -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-
+                // Populate fields with received data
+                document.getElementById('temp').value = data.temp;
+                document.getElementById('heartrate').value = data.heartrate;
+                document.getElementById('bloodsat').value = data.bloodsat;
+                document.getElementById('bodyweight').value = data.bodyweight;
+                document.getElementById('gsr').value = data.gsr;
+                document.getElementById('foot').value = data.foot;
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                document.querySelector('.loading-spinner').style.display = 'none';
+                alert('Failed to fetch data. Please try again.');
+            });
+        });
+    </script>
 </body>
-
 </html>

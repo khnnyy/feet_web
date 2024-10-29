@@ -1,18 +1,23 @@
 <?php
-include "db_conn.php";
+include "db_conn.php"; // Ensure this file is present and contains your database connection
 
 $api_key_value = "tPmAT5Ab3j7F9";
 
-$api_key= $patient_name = $sensor_value = "";
+$api_key = $temp = $heartrate = $bloodsat = $bodyweight = $gsr = $foot = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $api_key = test_input($_POST["api_key"]);
     if($api_key == $api_key_value) {
-        $patient_name = test_input($_POST["patient"]);
-        $sensor_value = test_input($_POST["sensor"]);
-        
-        $sql = "INSERT INTO foot_data (patient_name, sensor_value)
-        VALUES ('" . $patient_name . "', '" . $sensor_value ."')";
+        $temp = test_input($_POST["temp"]);
+        $heartrate = test_input($_POST["heartrate"]);
+        $bloodsat = test_input($_POST["bloodsat"]);
+        $bodyweight = test_input($_POST["bodyweight"]); // Corrected variable name
+        $gsr = test_input($_POST["gsr"]);
+        $foot = test_input($_POST["foot"]);
+
+        // Ensure all values are set correctly before executing SQL
+        $sql = "INSERT INTO `feet_diagnostics` (`temp`, `heartrate`, `bloodsat`, `bodyweight`, `gsr`, `foot`)
+                VALUES ('$temp', '$heartrate', '$bloodsat', '$bodyweight', '$gsr', '$foot')";
         
         if ($conn->query($sql) === TRUE) {
             echo "New record created successfully";
@@ -22,13 +27,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     
         $conn->close();
-    }
-    else {
+    } else {
         echo "Wrong API Key provided.";
     }
-
-}
-else {
+} else {
     echo "No data posted with HTTP POST.";
 }
 
