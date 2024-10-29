@@ -81,19 +81,44 @@ if ($patient_id) {
                 <img src="assests/feet.jpg" class="img-fluid" alt="Foot Image">
             </div>
 
-            <!-- Summary Section -->
             <div class="col-md-5 summary-container">
                 <h2>Foot Analysis Summary</h2>
-                <button id="diagnoseButton" class="btn btn-danger">Diagnose</button>
-                <div id="loading" class="loading">Loading... Please wait.</div>
-
-                <div id="dataDisplay">
-                    <!-- Data will be displayed here after POST request -->
-                    <p class="text-muted">No data available. Click "Diagnose" to start data retrieval.</p>
+                <button id="fetchDataBtn" class="btn btn-primary mb-3">Fetch Data</button>
+                <div class="loading-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <div id="dataDisplay" style="display: none;">
+                    <div class="form-group">
+                        <label class="data-label" for="temp">Temperature</label>
+                        <input type="text" class="form-control data-value" id="temp" placeholder="Value" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="data-label" for="heartrate">Heart Rate</label>
+                        <input type="text" class="form-control data-value" id="heartrate" placeholder="Value" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="data-label" for="bloodsat">Blood Saturation</label>
+                        <input type="text" class="form-control data-value" id="bloodsat" placeholder="Value" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="data-label" for="bodyweight">Body Weight</label>
+                        <input type="text" class="form-control data-value" id="bodyweight" placeholder="Value" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="data-label" for="gsr">GSR</label>
+                        <input type="text" class="form-control data-value" id="gsr" placeholder="Value" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="data-label" for="foot">Foot</label>
+                        <input type="text" class="form-control data-value" id="foot" placeholder="Value" readonly>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
