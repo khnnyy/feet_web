@@ -1,9 +1,41 @@
 <?php
-session_start(); // Start the session
-$patient_id = isset($_GET['patient_id']) ? $_GET['patient_id'] : null;
+$response = null; // Initialize response variable
+$error_message = null; // Initialize error message variable
 
-if ($patient_id) {
-    $_SESSION['patient_id'] = $patient_id; // Store in session
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Initialize cURL session
+    $curl = curl_init();
+
+    // Set the URL for the POST request
+    curl_setopt($curl, CURLOPT_URL, "http://172.20.10.5:80/get_data");
+
+    // Specify that this is a POST request
+    curl_setopt($curl, CURLOPT_POST, true);
+
+    // Set options to return the response as a string
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+    // Execute the POST request
+    $response = curl_exec($curl);
+
+    // Check for cURL errors
+    if (curl_errno($curl)) {
+        $error_message = 'Error: ' . curl_error($curl);
+    }
+
+    // Close the cURL session
+    curl_close($curl);
+
+    // Decode the JSON response if it's in JSON format
+    $data = isset($response) ? json_decode($response, true) : [];
+
+    // Assign values to variables
+    $temperature = $data['temperature'] ?? null;
+    $heartRate = $data['heartRate'] ?? null;
+    $bloodSaturation = $data['bloodSaturation'] ?? null;
+    $bodyWeight = $data['bodyWeight'] ?? null;
+    $gsr = $data['gsr'] ?? null;
+    $foot = $data['foot'] ?? null;
 }
 ?>
 
@@ -12,144 +44,58 @@ if ($patient_id) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Foot Analysis Display</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Response Data</title>
     <style>
-        body {
-            background: linear-gradient(135deg, #e8f3ff, #ffffff);
-            color: #333;
-            font-family: Arial, sans-serif;
-        }
-        .img-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            overflow: hidden;
-        }
-        .img-container img {
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            max-height: 75vh;
-            width: auto; /* Allow image to scale properly */
-        }
-        .summary-container {
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-        }
-        .data-label {
-            font-weight: bold;
-            color: #495057;
-        }
-        .data-value {
-            background-color: #f1f3f5;
-            border: none;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            padding: 10px;
-        }
-        .btn-danger {
-            width: 100%;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        h2 {
-            color: #007bff;
-            font-weight: bold;
-            border-bottom: 3px solid #e9ecef;
-            padding-bottom: 10px;
-        }
-        .loading {
-            display: none;
-        }
-        .loading.active {
-            display: block;
-            font-size: 1.2em;
-            color: #007bff;
-        }
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
-    <?php include_once "includes/header.php" ?>
+    <h1>Response Data</h1>
+    
+    <form method="post" action="">
+        <button type="submit">Get Data</button>
+    </form>
 
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Image Section -->
-            <div class="col-md-7 img-container">
-                <img src="assests/feet.jpg" class="img-fluid" alt="Foot Image" style="max-height: 80vh;">
-            </div>
-
-            <div class="col-md-5 summary-container">
-                <h2>Foot Analysis Summary</h2>
-                <button id="fetchDataBtn" class="btn btn-primary mb-3">Fetch Data</button>
-                <div class="loading-spinner" id="loadingSpinner">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                </div>
-                
-                <div id="dataDisplay" style="display: none;">
-                    <div class="row">
-                        <!-- Left Foot Data -->
-                        <div class="col-md-6">
-                            <h4>Left Foot</h4>
-                            <div class="form-group">
-                                <label class="data-label" for="tempLeft">Temperature</label>
-                                <input type="text" class="form-control data-value" id="tempLeft" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label class="data-label" for="heartrateLeft">Heart Rate</label>
-                                <input type="text" class="form-control data-value" id="heartrateLeft" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label class="data-label" for="bloodsatLeft">Blood Saturation</label>
-                                <input type="text" class="form-control data-value" id="bloodsatLeft" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label class="data-label" for="bodyweightLeft">Body Weight</label>
-                                <input type="text" class="form-control data-value" id="bodyweightLeft" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label class="data-label" for="gsrLeft">GSR</label>
-                                <input type="text" class="form-control data-value" id="gsrLeft" readonly>
-                            </div>
-                        </div>
-
-                        <!-- Right Foot Data -->
-                        <div class="col-md-6">
-                            <h4>Right Foot</h4>
-                            <div class="form-group">
-                                <label class="data-label" for="tempRight">Temperature</label>
-                                <input type="text" class="form-control data-value" id="tempRight" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label class="data-label" for="heartrateRight">Heart Rate</label>
-                                <input type="text" class="form-control data-value" id="heartrateRight" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label class="data-label" for="bloodsatRight">Blood Saturation</label>
-                                <input type="text" class="form-control data-value" id="bloodsatRight" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label class="data-label" for="bodyweightRight">Body Weight</label>
-                                <input type="text" class="form-control data-value" id="bodyweightRight" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label class="data-label" for="gsrRight">GSR</label>
-                                <input type="text" class="form-control data-value" id="gsrRight" readonly>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <?php if (isset($error_message)): ?>
+        <p style="color: red;"><?php echo htmlspecialchars($error_message); ?></p>
+    <?php elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && $response): ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Temperature</td>
+                    <td><?php echo htmlspecialchars($temperature); ?> °C</td>
+                </tr>
+                <tr>
+                    <td>Heart Rate</td>
+                    <td><?php echo htmlspecialchars($heartRate); ?> bpm</td>
+                </tr>
+                <tr>
+                    <td>Blood Saturation</td>
+                    <td><?php echo htmlspecialchars($bloodSaturation); ?> %</td>
+                </tr>
+                <tr>
+                    <td>Body Weight</td>
+                    <td><?php echo htmlspecialchars($bodyWeight); ?> kg</td>
+                </tr>
+                <tr>
+                    <td>GSR</td>
+                    <td><?php echo htmlspecialchars($gsr); ?></td>
+                </tr>
+                <tr>
+                    <td>Foot</td>
+                    <td><?php echo htmlspecialchars($foot); ?></td>
+                </tr>
+            </tbody>
+        </table>
+    <?php endif; ?>
 </body>
 </html>
