@@ -73,46 +73,75 @@ if ($patient_id) {
     </style>
 </head>
 <body>
-    <?php include_once "includes/header.php"; ?>
+    <?php include_once "includes/header.php" ?>
+
     <div class="container-fluid">
         <div class="row">
             <!-- Image Section -->
             <div class="col-md-7 img-container">
-                <img src="assests/feet.jpg" class="img-fluid" alt="Foot Image">
+                <img src="assests/feet.jpg" class="img-fluid" alt="Foot Image" style="max-height: 80vh;">
             </div>
 
             <div class="col-md-5 summary-container">
                 <h2>Foot Analysis Summary</h2>
                 <button id="fetchDataBtn" class="btn btn-primary mb-3">Fetch Data</button>
-                <div class="loading-spinner">
+                <div class="loading-spinner" id="loadingSpinner">
                     <div class="spinner-border text-primary" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
                 </div>
+                
                 <div id="dataDisplay" style="display: none;">
-                    <div class="form-group">
-                        <label class="data-label" for="temp">Temperature</label>
-                        <input type="text" class="form-control data-value" id="temp" placeholder="Value" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="data-label" for="heartrate">Heart Rate</label>
-                        <input type="text" class="form-control data-value" id="heartrate" placeholder="Value" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="data-label" for="bloodsat">Blood Saturation</label>
-                        <input type="text" class="form-control data-value" id="bloodsat" placeholder="Value" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="data-label" for="bodyweight">Body Weight</label>
-                        <input type="text" class="form-control data-value" id="bodyweight" placeholder="Value" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="data-label" for="gsr">GSR</label>
-                        <input type="text" class="form-control data-value" id="gsr" placeholder="Value" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="data-label" for="foot">Foot</label>
-                        <input type="text" class="form-control data-value" id="foot" placeholder="Value" readonly>
+                    <div class="row">
+                        <!-- Left Foot Data -->
+                        <div class="col-md-6">
+                            <h4>Left Foot</h4>
+                            <div class="form-group">
+                                <label class="data-label" for="tempLeft">Temperature</label>
+                                <input type="text" class="form-control data-value" id="tempLeft" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="data-label" for="heartrateLeft">Heart Rate</label>
+                                <input type="text" class="form-control data-value" id="heartrateLeft" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="data-label" for="bloodsatLeft">Blood Saturation</label>
+                                <input type="text" class="form-control data-value" id="bloodsatLeft" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="data-label" for="bodyweightLeft">Body Weight</label>
+                                <input type="text" class="form-control data-value" id="bodyweightLeft" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="data-label" for="gsrLeft">GSR</label>
+                                <input type="text" class="form-control data-value" id="gsrLeft" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Right Foot Data -->
+                        <div class="col-md-6">
+                            <h4>Right Foot</h4>
+                            <div class="form-group">
+                                <label class="data-label" for="tempRight">Temperature</label>
+                                <input type="text" class="form-control data-value" id="tempRight" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="data-label" for="heartrateRight">Heart Rate</label>
+                                <input type="text" class="form-control data-value" id="heartrateRight" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="data-label" for="bloodsatRight">Blood Saturation</label>
+                                <input type="text" class="form-control data-value" id="bloodsatRight" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="data-label" for="bodyweightRight">Body Weight</label>
+                                <input type="text" class="form-control data-value" id="bodyweightRight" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="data-label" for="gsrRight">GSR</label>
+                                <input type="text" class="form-control data-value" id="gsrRight" readonly>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -122,6 +151,5 @@ if ($patient_id) {
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
