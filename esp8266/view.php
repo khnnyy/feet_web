@@ -2,7 +2,7 @@
 include "db_conn.php";
 
 // Set the number of records per page
-$records_per_page = 15;
+$records_per_page = 1;
 
 // Get the current page number from the query string, default to 1 if not set
 $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -66,6 +66,7 @@ $total_pages = ceil($total_records / $records_per_page);
     <title>PHP CRUD Application</title>
 </head>
 
+
 <body>
     <?php include "includes/header.php"; ?>
 
@@ -97,10 +98,29 @@ $total_pages = ceil($total_records / $records_per_page);
                         <td><?php echo $row["patient_id"] ?></td>
                         <td><?php echo $row["name"] ?></td>
                         <td>
-                            <a href="diagnose.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="Diagnose"><i class="bi bi-lungs-fill fs-5 me-3"></i></a>
-                            <a href="patient_records.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="View Records"><i class="bi bi-file-medical-fill fs-5 me-3"></i></a>
-                            <a href="edit.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="Edit"><i class="fa-solid fa-pen-to-square fs-5 me-3"></i></a>
-                            <a href="delete.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="Delete"><i class="fa-solid fa-trash fs-5 me-3"></i></a>
+                            <a href="post_data.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="Diagnose" data-bs-toggle="modal" data-bs-target="#confirmDiagnosisModal<?php echo $row['patient_id']; ?>"><i class="bi bi-lungs-fill fs-5 me-3"></i></a>
+                            <div class="modal fade" id="confirmDiagnosisModal<?php echo $row['patient_id']; ?>" tabindex="-1" aria-labelledby="confirmDiagnosisModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="confirmDiagnosisModalLabel">Retrieve Data</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Please verify that the device has finished its diagnostic process and is ready for data retrieval.</p>
+                                            <p><strong>Retrieve diagnostic data from device for this patient?</strong></p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <a href="post_data.php?patient_id=<?php echo $row['patient_id']; ?>" id="confirmFetchLink<?php echo $row['patient_id']; ?>" class="btn btn-primary">Yes, Proceed</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                            <a href="patient_records.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="View Records"><i class="ic bi bi-file-medical-fill fs-5 me-3"></i></a>
+                            <a href="edit.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="Edit"><i class="ic fa-solid fa-pen-to-square fs-5 me-3"></i></a>
+                            <a href="delete.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="Delete"><i class="ic fa-solid fa-trash fs-5 me-3"></i></a>
                         </td>
                     </tr>
                 <?php
@@ -139,12 +159,12 @@ $total_pages = ceil($total_records / $records_per_page);
             </ul>
         </nav>
     </div>
-
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
             crossorigin="anonymous"></script>
 
 </body>
+
 
 </html>

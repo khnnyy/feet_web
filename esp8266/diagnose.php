@@ -1,3 +1,42 @@
+<?php
+include "db_conn.php";
+
+$temp = $heartrate = $bloodsat = $bodyweight = $gsr = $foot = $datetime = null;
+
+if (isset($_GET["diagnostic_id"])) {
+    $diagnostic_id = $_GET["diagnostic_id"];
+
+    $sql = "SELECT patient_id, temp, heartrate, bloodsat, bodyweight, gsr, foot, datetime FROM feet_diagnostics WHERE diagnostic_id= $diagnostic_id";
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_assoc($result);
+        
+    $patient_id = $row["patient_id"];
+    $temp = $row["temp"];
+    $heartrate = $row["heartrate"];
+    $bloodsat = $row["bloodsat"];
+    $bodyweight = $row["bodyweight"];
+    $gsr = $row["gsr"];
+    $foot = $row["foot"];
+    $datetime = $row["datetime"];
+
+    $sql = "SELECT name FROM patients WHERE patient_id= $patient_id";
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_assoc($result);
+    $patient_name = $row["name"];
+
+    // Display patient information
+    echo "<div class='container my-4'>";
+    echo "<h4 class='mb-3'>Patient Information</h4>";
+    echo "Patient ID: $patient_id<br>";
+    echo "Patient Name: $patient_name<br>";
+    echo "Date-Time: $datetime<br>";
+    echo "</div>";
+}
+
+// Close database connection
+mysqli_close($conn);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,12 +47,12 @@
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"/>
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -73,6 +112,16 @@
         .reading {
             color: #333 !important; /* Darker gray for readability */
         }
+
+        /* Card hover effect */
+        .card {
+            transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition */
+        }
+
+        .card:hover {
+            transform: scale(1.02); /* Slightly enlarge on hover */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+        }
     </style>
     <?php include "includes/header.php"; ?>
 </head>
@@ -81,76 +130,70 @@
     <div class="container container-main">
         <div class="row">
             <div class="col-md-7">
-                <h4 class="mb-3">Foot Diagnostic Analysis</h4>
-                <div class="diagnostic-image"></div> <!-- Placeholder for image -->
+                <div class="container my-4">
+                    <h4 class="mb-3">Foot Diagnostic Analysis</h4>
+                    <div class="diagnostic-image"></div> <!-- Placeholder for image -->
+                </div>
             </div>
             <div class="col-md-5">
-                <h4>Patient: <?php echo "ABUBAKAR, AL-KHADEEM H."; ?></h4>
-                <p class="summary-text d-flex align-items-center">
-                    <span class="highlight-label">Patient ID:</span> <?php echo "1"; ?>
-                    <span class="mx-2">|</span>
-                    <span class="highlight-label">Diagnostic ID:</span> <?php echo "5"; ?>
-                    <span class="mx-2">|</span>
-                    <span class="highlight-label">Date-Time:</span> <?php echo "2024-10-30"; ?>
-                </p>
-
-                <div class="sensor-title">Foot Sensor Readings</div>
-                <table class="table sensor-table">
-                    <thead>
-                        <tr>
-                            <th>Parameter</th>
-                            <th>Left Foot Value</th>
-                            <th>Right Foot Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="label">Temperature:</td>
-                            <td class="reading" id="leftTemperature">-</td>
-                            <td class="reading" id="rightTemperature">-</td>
-                        </tr>
-                        <tr>
-                            <td class="label">Heart Rate:</td>
-                            <td class="reading" id="leftHeartRate">-</td>
-                            <td class="reading" id="rightHeartRate">-</td>
-                        </tr>
-                        <tr>
-                            <td class="label">Blood Saturation:</td>
-                            <td class="reading" id="leftBloodSaturation">-</td>
-                            <td class="reading" id="rightBloodSaturation">-</td>
-                        </tr>
-                        <tr>
-                            <td class="label">Body Weight:</td>
-                            <td class="reading" id="leftBodyWeight">-</td>
-                            <td class="reading" id="rightBodyWeight">-</td>
-                        </tr>
-                        <tr>
-                            <td class="label">GSR:</td>
-                            <td class="reading" id="leftGSR">-</td>
-                            <td class="reading" id="rightGSR">-</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="row mb-2"> <!-- Adjusted margin bottom -->
+                    <div class="card p-2 shadow-sm ">
+                    <div class="sensor-title">Patient Information</div>
+                        <h4><?php echo $patient_name; ?></h4>
+                        <p class="summary-text d-flex align-items-center">
+                            <span class="highlight-label">Patient ID:</span> <?php echo $patient_id; ?>
+                            <span class="mx-2">|</span>
+                            <span class="highlight-label">Diagnostic ID:</span> <?php echo $diagnostic_id; ?>
+                        </p>
+                        <span class="highlight-label">Date-Time:</span> <?php echo $datetime; ?>
+                    </div>
+                </div>
+                <div class="row mb-2"> <!-- Adjusted margin bottom -->
+                    <div class="card p-2 shadow-sm">
+                        <div class="sensor-title">Foot Sensor Readings</div>
+                        <table class="table sensor-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Left Foot Value</th>
+                                    <th>Right Foot Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="label">Temperature:</td>
+                                    <td class="reading" id="leftTemperature"><?php echo $temp ?> °C</td>
+                                    <td class="reading" id="rightTemperature">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Heart Rate:</td>
+                                    <td class="reading" id="leftHeartRate"><?php echo $heartrate ?> bpm</td>
+                                    <td class="reading" id="rightHeartRate">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Blood Saturation:</td>
+                                    <td class="reading" id="leftBloodSaturation"><?php echo $bloodsat ?></td>
+                                    <td class="reading" id="rightBloodSaturation">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Body Weight:</td>
+                                    <td class="reading" id="leftBodyWeight"><?php echo $bodyweight ?></td>
+                                    <td class="reading" id="rightBodyWeight">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">GSR:</td>
+                                    <td class="reading" id="leftGSR"><?php echo $gsr ?></td>
+                                    <td class="reading" id="rightGSR">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-        const leftFootData = { temperature: 36.5, heartRate: 72, bloodSaturation: 98, bodyWeight: 70, gsr: 0.15 };
-        const rightFootData = { temperature: 36.7, heartRate: 70, bloodSaturation: 97, bodyWeight: 71, gsr: 0.13 };
-
-        document.getElementById("leftTemperature").innerText = leftFootData.temperature;
-        document.getElementById("leftHeartRate").innerText = leftFootData.heartRate;
-        document.getElementById("leftBloodSaturation").innerText = leftFootData.bloodSaturation;
-        document.getElementById("leftBodyWeight").innerText = leftFootData.bodyWeight;
-        document.getElementById("leftGSR").innerText = leftFootData.gsr;
-
-        document.getElementById("rightTemperature").innerText = rightFootData.temperature;
-        document.getElementById("rightHeartRate").innerText = rightFootData.heartRate;
-        document.getElementById("rightBloodSaturation").innerText = rightFootData.bloodSaturation;
-        document.getElementById("rightBodyWeight").innerText = rightFootData.bodyWeight;
-        document.getElementById("rightGSR").innerText = rightFootData.gsr;
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-eL5EjK5mRjw1aGyfIhGo/c7UUR6DFcUny5ZBfGeEd4G5g2SuOa1yxQ4GYOwlYJ6k" crossorigin="anonymous"></script>
 </body>
 
 </html>

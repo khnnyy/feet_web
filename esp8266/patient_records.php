@@ -1,39 +1,44 @@
 <?php
 include "db_conn.php";
-$patient_id = $_GET["patient_id"];
-// Set the number of records per page
+
+// Check if patient_id is set
+if (!isset($_GET["patient_id"])) {
+    echo "Patient not found.";
+    exit;
+}
+
+$patient_id = intval($_GET["patient_id"]); // Ensure the patient_id is an integer for security
 $records_per_page = 15;
 
-// Get the current page number from the query string, default to 1 if not set
+// Get the current page number
 $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($current_page - 1) * $records_per_page;
 
 // Initialize date variable
 $date = '';
 if (isset($_POST["search"])) {
-    // Get the selected date
     $date = trim($_POST['search_date']);
+} elseif (isset($_GET["search_date"])) {
+    $date = trim($_GET['search_date']); // Retain search date on pagination links
 }
 
-$patient_name='';
-$sql = "SELECT `name` FROM `patients` WHERE `patient_id`='$patient_id'";
+// Fetch patient name
+$patient_name = '';
+$sql = "SELECT `name` FROM `patients` WHERE `patient_id` = $patient_id";
 $result = mysqli_query($conn, $sql);
 if ($result && mysqli_num_rows($result) > 0) {
     $patient_row = mysqli_fetch_assoc($result);
     $patient_name = $patient_row['name'];
 } else {
     echo "Patient not found.";
-    exit; // Exit if no patient is found
+    exit;
 }
 
 // Prepare SQL statement for pagination
-$sql = "SELECT * FROM `feet_diagnostics`";
-
-// If a date is provided, modify the SQL query
+$sql = "SELECT `diagnostic_id`, `datetime` FROM `feet_diagnostics` WHERE `patient_id` = $patient_id";
 if ($date) {
-    $sql .= " WHERE `date` LIKE '%$date%'";
+    $sql .= " AND `date` LIKE '%$date%'";
 }
-
 $sql .= " LIMIT $offset, $records_per_page";
 
 $result = mysqli_query($conn, $sql);
@@ -41,14 +46,13 @@ if ($result) {
     $diagnostic = mysqli_fetch_all($result, MYSQLI_ASSOC);
 } else {
     echo "Failed: " . mysqli_error($conn);
+    exit;
 }
 
-
-
-// Prepare the SQL query for counting total records
-$count_sql = "SELECT COUNT(*) as total FROM `feet_diagnostics`";
+// Get the total number of records for pagination
+$count_sql = "SELECT COUNT(*) as total FROM `feet_diagnostics` WHERE `patient_id` = $patient_id";
 if ($date) {
-    $count_sql .= " WHERE `date` LIKE '%$date%'";
+    $count_sql .= " AND `date` LIKE '%$date%'";
 }
 $count_result = mysqli_query($conn, $count_sql);
 $total_records = mysqli_fetch_assoc($count_result)['total'];
@@ -82,19 +86,19 @@ $total_pages = ceil($total_records / $records_per_page);
     <?php include "includes/header.php"; ?>
 
     <div class="container">
-        <div class="row ">
+        <div class="row">
             <div class="col-md-7">
-            <span class="fs-5 fw-normal text">PATIENT: 
-            <span class="fw-bold"><?php echo htmlspecialchars($patient_name); ?></span>            
-        </div>
+                <span class="fs-5 fw-normal">PATIENT:
+                    <span class="fw-bold"><?php echo htmlspecialchars($patient_name); ?></span>
+                </span>
+            </div>
             <div class="col-md-5">
                 <form method="POST" class="d-flex">
-                    <input type="date" class="form-control custom-input me-2" id="search_date" name="search_date" required>
+                    <input type="date" class="form-control custom-input me-2" id="search_date" name="search_date" value="<?php echo htmlspecialchars($date); ?>" required>
                     <button type="submit" class="btn btn-primary" name="search">Search</button>
                 </form>
             </div>
         </div>
-
 
         <table class="table table-hover text-center">
             <thead class="table-dark">
@@ -108,17 +112,17 @@ $total_pages = ceil($total_records / $records_per_page);
                 <?php
                 if ($diagnostic) {
                     foreach ($diagnostic as $row) {
-                ?>
-                    <tr>
-                        <td><?php echo $row["patient_id"] ?></td>
-                        <td><?php echo $row["date"] ?></td>
-                        <td>
-                            <a href="view_records.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="View Records"><i class="bi bi-file-medical-fill fs-5 me-3"></i></a>
-                            <a href="edit.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="Edit"><i class="fa-solid fa-pen-to-square fs-5 me-3"></i></a>
-                            <a href="delete.php?patient_id=<?php echo $row["patient_id"] ?>" class="link-dark" title="Delete"><i class="fa-solid fa-trash fs-5 me-3"></i></a>
-                        </td>
-                    </tr>
-                <?php
+                        ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($row["diagnostic_id"]); ?></td>
+                            <td><?php echo htmlspecialchars($row["datetime"]); ?></td>
+                            <td>
+                                <a href="view_records.php?patient_id=<?php echo $patient_id; ?>" class="link-dark" title="View Records"><i class="bi bi-file-medical-fill fs-5 me-3"></i></a>
+                                <a href="edit.php?patient_id=<?php echo $patient_id; ?>" class="link-dark" title="Edit"><i class="fa-solid fa-pen-to-square fs-5 me-3"></i></a>
+                                <a href="delete.php?patient_id=<?php echo $patient_id; ?>" class="link-dark" title="Delete"><i class="fa-solid fa-trash fs-5 me-3"></i></a>
+                            </td>
+                        </tr>
+                        <?php
                     }
                 } else {
                     echo "<tr><td colspan='3'>No records found.</td></tr>";
@@ -132,21 +136,21 @@ $total_pages = ceil($total_records / $records_per_page);
             <ul class="pagination justify-content-center">
                 <?php if ($current_page > 1): ?>
                     <li class="page-item">
-                        <a class="page-link" href="?page=<?php echo $current_page - 1; ?>&search_date=<?php echo $date; ?>" aria-label="Previous">
+                        <a class="page-link" href="?page=<?php echo $current_page - 1; ?>&patient_id=<?php echo $patient_id; ?>&search_date=<?php echo htmlspecialchars($date); ?>" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
                 <?php endif; ?>
-                
+
                 <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                     <li class="page-item <?php echo $current_page == $i ? 'active' : ''; ?>">
-                        <a class="page-link" href="?page=<?php echo $i; ?>&search_date=<?php echo $date; ?>"><?php echo $i; ?></a>
+                        <a class="page-link" href="?page=<?php echo $i; ?>&patient_id=<?php echo $patient_id; ?>&search_date=<?php echo htmlspecialchars($date); ?>"><?php echo $i; ?></a>
                     </li>
                 <?php endfor; ?>
-                
+
                 <?php if ($current_page < $total_pages): ?>
                     <li class="page-item">
-                        <a class="page-link" href="?page=<?php echo $current_page + 1; ?>&search_date=<?php echo $date; ?>" aria-label="Next">
+                        <a class="page-link" href="?page=<?php echo $current_page + 1; ?>&patient_id=<?php echo $patient_id; ?>&search_date=<?php echo htmlspecialchars($date); ?>" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
@@ -159,7 +163,5 @@ $total_pages = ceil($total_records / $records_per_page);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
             crossorigin="anonymous"></script>
-
 </body>
-
 </html>
