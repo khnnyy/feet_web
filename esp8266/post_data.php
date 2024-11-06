@@ -9,7 +9,7 @@ if (isset($_GET["patient_id"])) {
     $current_datetime = date("Y-m-d H:i:s");
     
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, "http://192.168.1.13:80/get_data");
+        curl_setopt($curl, CURLOPT_URL, "http://172.16.154.170:80/get_data");
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($curl);
@@ -38,7 +38,7 @@ if (isset($_GET["patient_id"])) {
         } else {
             echo "Failed: " . mysqli_error($conn);
         }
-
+        echo $temperature;
         $sql = "INSERT INTO `feet_diagnostics`(`diagnostic_id`,`patient_id`, `temp`, `heartrate`, `bloodsat`, `bodyweight`, `gsr`, `foot`, `datetime`)
                 VALUES ('$diagnostic_id','$patient_id','$temperature','$heartRate' ,'$bloodSaturation' ,'$bodyWeight' ,'$gsr' ,'$foot' ,'$current_datetime')";
 

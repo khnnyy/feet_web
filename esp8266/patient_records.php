@@ -37,7 +37,7 @@ if ($result && mysqli_num_rows($result) > 0) {
 // Prepare SQL statement for pagination
 $sql = "SELECT `diagnostic_id`, `datetime` FROM `feet_diagnostics` WHERE `patient_id` = $patient_id";
 if ($date) {
-    $sql .= " AND `date` LIKE '%$date%'";
+    $sql .= " AND `datetime` LIKE '%$date%'";
 }
 $sql .= " LIMIT $offset, $records_per_page";
 
@@ -52,7 +52,7 @@ if ($result) {
 // Get the total number of records for pagination
 $count_sql = "SELECT COUNT(*) as total FROM `feet_diagnostics` WHERE `patient_id` = $patient_id";
 if ($date) {
-    $count_sql .= " AND `date` LIKE '%$date%'";
+    $count_sql .= " AND `datetime` LIKE '%$date%'";
 }
 $count_result = mysqli_query($conn, $count_sql);
 $total_records = mysqli_fetch_assoc($count_result)['total'];
@@ -112,14 +112,16 @@ $total_pages = ceil($total_records / $records_per_page);
                 <?php
                 if ($diagnostic) {
                     foreach ($diagnostic as $row) {
+                        // Format the date and time from the database
+                        $formatted_datetime = date("Y-m-d H:i:s", strtotime($row["datetime"]));
                         ?>
                         <tr>
                             <td><?php echo htmlspecialchars($row["diagnostic_id"]); ?></td>
-                            <td><?php echo htmlspecialchars($row["datetime"]); ?></td>
+                            <td><?php echo $formatted_datetime; ?></td>
                             <td>
-                                <a href="view_records.php?patient_id=<?php echo $patient_id; ?>" class="link-dark" title="View Records"><i class="bi bi-file-medical-fill fs-5 me-3"></i></a>
-                                <a href="edit.php?patient_id=<?php echo $patient_id; ?>" class="link-dark" title="Edit"><i class="fa-solid fa-pen-to-square fs-5 me-3"></i></a>
-                                <a href="delete.php?patient_id=<?php echo $patient_id; ?>" class="link-dark" title="Delete"><i class="fa-solid fa-trash fs-5 me-3"></i></a>
+                                <a href="diagnose.php?diagnostic_id=<?php echo $row["diagnostic_id"]; ?>" class="link-dark" title="View Records"><i class="bi bi-file-medical-fill fs-5 me-3"></i></a>
+                                <a href="edit.php?diagnostic_id=<?php echo $row["diagnostic_id"]; ?>" class="link-dark" title="Edit"><i class="fa-solid fa-pen-to-square fs-5 me-3"></i></a>
+                                <a href="delete.php?diagnostic_id=<?php echo $row["diagnostic_id"]; ?>" class="link-dark" title="Delete"><i class="fa-solid fa-trash fs-5 me-3"></i></a>
                             </td>
                         </tr>
                         <?php
